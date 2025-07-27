@@ -64,6 +64,7 @@ public class GamePanel extends JPanel implements Runnable{
                 repaint();
                 delta--;
                 drawCount += 1;
+                Toolkit.getDefaultToolkit().sync();
             }
 
             if(timer >= 1000000000) {

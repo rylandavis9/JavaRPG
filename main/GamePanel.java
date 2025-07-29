@@ -1,6 +1,8 @@
 package main;
 
 import entity.Player;
+import main.tile.Map;
+import main.tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     double fps = 60;
 
+    TileManager tileM = new TileManager(this);
     InputHandler keyH = new InputHandler();
     Thread gameThread;
     Player player = new Player(this,keyH);
@@ -83,6 +86,9 @@ public class GamePanel extends JPanel implements Runnable{
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
+
+
+        tileM.draw(g2, Map.gameMap("res/maps/map01.txt"));
 
         player.draw(g2);
 

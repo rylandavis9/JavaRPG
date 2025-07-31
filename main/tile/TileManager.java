@@ -5,64 +5,75 @@ import main.GamePanel;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.IOException;
+import java.io.File;
+import java.util.HashMap;
 
 public class TileManager {
 
     GamePanel gp;
-    Tile[] tile;
-    int x = 0;
-    int y = 0;
+    HashMap<String, Tile> tileMap = new HashMap<>();
 
 
 
 
     public TileManager(GamePanel gp) {
-
         this.gp = gp;
-
-        tile = new Tile[10];
-
-        getTileImage();
+        loadTilesFromFolder("res/tiles"); // <-- set this path to your exported tiles folder
 
     }
 
-    public void getTileImage() {
-
-        try{
-
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(getClass().getResourceAsStream("/tiles/grass.png"));
-
-            tile[1] = new Tile();
-            tile[1].image = ImageIO.read(getClass().getResourceAsStream("/tiles/wall.png"));
-
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(getClass().getResourceAsStream("/tiles/water.png"));
-
-        }catch(IOException e) {
-            e.printStackTrace();
+    private void loadTilesFromFolder(String folderPath) {
+        File folder = new File(folderPath);
+        if (!folder.exists() || !folder.isDirectory()) {
+            System.err.println("Tile folder does not exist: " + folderPath);
+            return;
         }
 
-    }
+        File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+        if (files == null) return;
 
-    public void draw(Graphics2D g2, String[][] Map) {
-        x=0;
-        y=0;
-        for(int i = 0; i < 20; i++) {
-
-            for (int j = 0; j < 20; j++) {
-                switch (Map[i][j]) {
-                    case "g" -> g2.drawImage(tile[0].image, x, y, gp.tileSize, gp.tileSize, null);
-                    case "b" -> g2.drawImage(tile[1].image, x, y, gp.tileSize, gp.tileSize, null);
-                    case "w" -> g2.drawImage(tile[2].image, x, y, gp.tileSize, gp.tileSize, null);
-                }
-                x += gp.tileSize;
+        for (File file : files) {
+            try {
+                String fileName = file.getName();
+                String tileCode = fileName.substring(0, fileName.length() - 4); // remove ".png"
+                Tile t = new Tile();
+                t.image = ImageIO.read(file);
+                tileMap.put(tileCode, t);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            y += gp.tileSize;
-            x=0;
         }
 
-
+        System.out.println("Loaded " + tileMap.size() + " tiles from " + folderPath);
     }
 
+    public void draw(Graphics2D g2, String[][] map) {
+        int tileSize = gp.tileSize;
+        int mapRows = map.length;
+        int mapCols = (mapRows > 0) ? map[0].length : 0;
+
+        for (int row = 0; row < mapRows; row++) {
+            for (int col = 0; col < mapCols; col++) {
+                String tileCode = map[row][col];
+                Tile t = tileMap.get(tileCode);
+                if (tileCode.equals("t0")) continue;
+
+                if (t != null && t.image != null) {
+                    int worldX = col * tileSize;
+                    int worldY = row * tileSize;
+
+                    int screenX = worldX - gp.player.worldX + gp.player.screenX;
+                    int screenY = worldY - gp.player.worldY + gp.player.screenY;
+                    g2.drawImage(t.image, screenX, screenY, tileSize, tileSize, null);
+
+                } else {
+                    // Optional: draw a placeholder if tile not found
+                    g2.setColor(Color.MAGENTA);
+                    int screenX = col * tileSize - gp.player.worldX + gp.player.screenX;
+                    int screenY = row * tileSize - gp.player.worldY + gp.player.screenY;
+                    g2.fillRect(screenX, screenY, tileSize, tileSize);
+                }
+            }
+        }
+    }
 }

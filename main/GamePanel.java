@@ -15,20 +15,26 @@ public class GamePanel extends JPanel implements Runnable{
     public final int tileSize = ogTileSize * scale; //Scaling tiles for modern screens
     final int maxScreenCol = 16;
     final int maxScreenRow = 12;
-    final int screenWidth = tileSize * maxScreenCol; //16x12 tiles
-    final int screenHeight = tileSize * maxScreenRow; //768x576
+    public final int screenWidth = tileSize * maxScreenCol; //16x12 tiles
+    public final int screenHeight = tileSize * maxScreenRow; //768x576
+
+    //world params
+    //public final int maxWorldCol = 100;
+    //public final int maxWorldRow = 100;
+    public final int worldWidth = tileSize * maxScreenCol;
+    public final int worldHeight = tileSize * maxScreenRow;
 
     double fps = 60;
 
     TileManager tileM = new TileManager(this);
     InputHandler keyH = new InputHandler();
     Thread gameThread;
-    Player player = new Player(this,keyH);
+    public Player player = new Player(this,keyH);
+
 
     public GamePanel() {
 
         this.setPreferredSize(new Dimension(screenWidth, screenHeight)); //set dimensions
-        this.setBackground(Color.black); //not really necessary, just for testing pre sprites will remove later if remember
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
@@ -88,9 +94,11 @@ public class GamePanel extends JPanel implements Runnable{
         Graphics2D g2 = (Graphics2D)g;
 
 
-        tileM.draw(g2, Map.gameMap("res/maps/map01.txt"));
-
+        tileM.draw(g2, Map.gameMap("res/maps/map_layer_0.txt"));
+        tileM.draw(g2, Map.gameMap("res/maps/map_layer_1.txt"));
         player.draw(g2);
+        tileM.draw(g2, Map.gameMap("res/maps/map_layer_2.txt"));
+
 
         g2.dispose();
     }

@@ -24,6 +24,13 @@ public class Player extends Entity{
         screenX = gp.screenWidth/2 - (gp.tileSize / 2);
         screenY = gp.screenHeight/2 - (gp.tileSize / 2);
 
+        solidArea = new Rectangle();
+        solidArea.x = 16;
+        solidArea.y = 32;
+        solidArea.width = 16;
+        solidArea.height = 16;
+
+
         setDefaults();
         getPlayerImage();
     }
@@ -64,19 +71,23 @@ public class Player extends Entity{
     public void update() {
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
 
-            if (keyH.upPressed) {
-                worldY -= speed;
-                direction = "up";
-            }else if (keyH.downPressed) {
-                worldY += speed;
-                direction = "down";
-            } else if (keyH.leftPressed) {
-                worldX -= speed;
-                direction = "left";
-            } else if (keyH.rightPressed) {
-                worldX += speed;
-                direction = "right";
+            if (keyH.upPressed) direction = "up";
+            else if (keyH.downPressed) direction = "down";
+            else if (keyH.leftPressed) direction = "left";
+            else if (keyH.rightPressed) direction = "right";
+
+            // Check collision BEFORE moving
+            collisionOn = false;
+            gp.collisionCheck.checkTile(this);
+
+            // Only move if no collision
+            if (!collisionOn) {
+                if (direction.equals("up")) worldY -= speed;
+                else if (direction.equals("down")) worldY += speed;
+                else if (direction.equals("left")) worldX -= speed;
+                else if (direction.equals("right")) worldX += speed;
             }
+
 
             spriteCounter++;
             if (spriteCounter > 12) {
@@ -155,7 +166,11 @@ public class Player extends Entity{
 
         }
 
+
         g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
 
+    }
+    public Rectangle getBounds() {
+        return new Rectangle(worldX + solidArea.x, worldY + solidArea.y, solidArea.width, solidArea.height);
     }
 }

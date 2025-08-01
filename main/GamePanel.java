@@ -26,9 +26,11 @@ public class GamePanel extends JPanel implements Runnable{
 
     double fps = 60;
 
+
     TileManager tileM = new TileManager(this);
     InputHandler keyH = new InputHandler();
     Thread gameThread;
+    public CollisionCheck collisionCheck = new CollisionCheck(this);
     public Player player = new Player(this,keyH);
 
 
@@ -44,6 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     public void startGameThread() {
 
+        tileM.buildCollisionTilesFromMap(Map.gameMap("res/maps/COLLISION.txt"));
         gameThread = new Thread(this);
         gameThread.start();
     }
@@ -84,6 +87,7 @@ public class GamePanel extends JPanel implements Runnable{
 
         }
     }
+
     public void update() {
         player.update();
     }
@@ -97,7 +101,7 @@ public class GamePanel extends JPanel implements Runnable{
         tileM.draw(g2, Map.gameMap("res/maps/map_layer_0.txt"));
         tileM.draw(g2, Map.gameMap("res/maps/map_layer_1.txt"));
         player.draw(g2);
-        tileM.draw(g2, Map.gameMap("res/maps/map_layer_2.txt"));
+        tileM.draw(g2, Map.gameMap("res/maps/map_layer_3.txt"));
 
 
         g2.dispose();

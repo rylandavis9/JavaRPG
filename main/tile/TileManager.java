@@ -1,5 +1,7 @@
 package main.tile;
 
+import entity.CollisionTile;
+import entity.Entity;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
@@ -7,11 +9,14 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.File;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TileManager {
 
     GamePanel gp;
     HashMap<String, Tile> tileMap = new HashMap<>();
+    public List<CollisionTile> collisionTiles = new ArrayList<>();
 
 
 
@@ -47,6 +52,24 @@ public class TileManager {
         System.out.println("Loaded " + tileMap.size() + " tiles from " + folderPath);
     }
 
+    public void buildCollisionTilesFromMap(String[][] map) {
+        collisionTiles.clear(); // Reset if regenerating
+        int tileSize = gp.tileSize;
+
+        for (int row = 0; row < map.length; row++) {
+            for (int col = 0; col < map[row].length; col++) {
+                String tileCode = map[row][col];
+                if (tileCode.equals("c0")) {
+                    int worldX = col * tileSize;
+                    int worldY = row * tileSize;
+                    collisionTiles.add(new CollisionTile(worldX, worldY));
+                } else {
+                    continue;
+                }
+            }
+        }
+    }
+
     public void draw(Graphics2D g2, String[][] map) {
         int tileSize = gp.tileSize;
         int mapRows = map.length;
@@ -56,7 +79,8 @@ public class TileManager {
             for (int col = 0; col < mapCols; col++) {
                 String tileCode = map[row][col];
                 Tile t = tileMap.get(tileCode);
-                if (tileCode.equals("t0")) continue;
+                if (tileCode.equals("e0")) continue;
+
 
                 if (t != null && t.image != null) {
                     int worldX = col * tileSize;
